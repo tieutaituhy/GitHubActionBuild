@@ -1,0 +1,29 @@
+name: Deploy HTML via Self-Hosted Runner
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'index.html'
+      - '.github/workflows/deploy-selfhosted.yml'
+
+jobs:
+  deploy-local:
+    # --- ĐÂY LÀ THAY ĐỔI QUAN TRỌNG ---
+    runs-on: self-hosted # Yêu cầu chạy trên runner bạn vừa cài
+
+    steps:
+      # Bước 1: Checkout code (Runner sẽ checkout code vào thư mục làm việc của nó)
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Bước 2: Deploy (Giờ chỉ là copy file cục bộ)
+      - name: Deploy to Nginx
+        run: | # Các lệnh này chạy TRỰC TIẾP trên Ubuntu Server của bạn
+          echo "Deploying index.html locally..."
+          # Copy file từ thư mục làm việc của runner đến thư mục web server
+          # Bạn có thể cần 'sudo' tùy vào quyền của user chạy runner
+          # Hãy đảm bảo user chạy runner có quyền ghi vào /var/www/html/
+          cp index.html /var/www/html/
+          echo "Deployment complete."
