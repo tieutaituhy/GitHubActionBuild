@@ -1,4 +1,4 @@
-name: Deploy HTML via Self-Hosted Runner
+name: Build and Run HTML with Docker
 
 on:
   push:
@@ -6,24 +6,48 @@ on:
       - main
     paths:
       - 'index.html'
-      - '.github/workflows/deploy-selfhosted.yml'
+      - 'Dockerfile' # Chạy khi Dockerfile thay đổi
+      - '.github/workflows/docker-deploy.yml'
 
 jobs:
-  deploy-local:
-    # --- ĐÂY LÀ THAY ĐỔI QUAN TRỌNG ---
-    runs-on: self-hosted # Yêu cầu chạy trên runner bạn vừa cài
+  build-and-run-docker:
+    runs-on: self-hosted # Chạy trên runner của bạn
 
     steps:
-      # Bước 1: Checkout code (Runner sẽ checkout code vào thư mục làm việc của nó)
+      # Bước 1: Checkout code
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Bước 2: Deploy (Giờ chỉ là copy file cục bộ)
-      - name: Deploy to Nginx
-        run: | # Các lệnh này chạy TRỰC TIẾP trên Ubuntu Server của bạn
-          echo "Deploying index.html locally..."
-          # Copy file từ thư mục làm việc của runner đến thư mục web server
-          # Bạn có thể cần 'sudo' tùy vào quyền của user chạy runner
-          # Hãy đảm bảo user chạy runner có quyền ghi vào /var/www/html/
-          cp index.html /var/www/html/
-          echo "Deployment complete."
+      # Bước 2: Build Docker Image
+      - name: Build Docker Image
+        run: |
+          docker build -t my-html-app:latest .
+          # Gắn tag theo commit hash để quản lý phiên bản (tùy chọn)
+          docker build -t my-html-app:${{ github.sha }} .
+
+      # Bước 3: Dừng và Xóa container cũ (nếu có)
+      - name: Stop and Remove Old Container
+        run: |
+          # Kiểm tra xem container có tồn tại không, nếu có thì dừng và xóa
+          if [ "$(docker ps -q -f name=my-html-container)" ]; then
+              docker stop my-html-container
+              docker rm my-html-container
+          fi
+        # 'continue-on-error: true' để không bị lỗi nếu container chưa tồn tại
+        continue-on-error: true
+
+      # Bước 4: Chạy Container Mới
+      - name: Run New Docker Container
+        run: |
+          # Chạy container mới từ image vừa build
+          # Ánh xạ cổng 8080 của máy chủ vào cổng 80 của container
+          # (Dùng 8080 để tránh xung đột nếu bạn đang chạy Nginx/Apache trên cổng 80)
+          # Nếu bạn không chạy gì khác trên cổng 80, có thể dùng "80:80"
+          docker run -d -p 8080:80 --name my-html-container my-html-app:latest
+
+      # Bước 5: (Tùy chọn) Dọn dẹp image cũ
+      - name: Prune Old Docker Images
+        run: docker image prune -f
+
+      - name: Deployment Success
+        run: echo "🎉 Docker container 'my-html-container' is running!"
