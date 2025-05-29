@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Deploy t? GitHub Actions</title>
-    <style>
-        body { font-family: sans-serif; text-align: center; margin-top: 50px; }
-        h1 { color: #0366d6; }
-        p { color: #586069; }
+    <title>Deploy từ GitHub Actions (Docker Test)</title> <style>
+        body { font-family: sans-serif; text-align: center; margin-top: 50px; background-color: #f0f8ff; } /* Sửa style */
+        h1 { color: #28a745; } /* Sửa màu */
+        p { color: #333; }
         .time { font-size: 0.8em; color: #6a737d; margin-top: 30px; }
     </style>
 </head>
 <body>
-    <h1>?? Xin chào! File đượcc Deploy thành công!</h1>
-    <p>File <code>index.html</code> này đượcc tự dộngng cập nhật bởi GitHub Actions.</p>
-    <p class="time">Th?i gian deploy: <span id="deploy-time"></span></p>
+    <h1>🚀 Test CI/CD với Docker - Đã cập nhật!</h1> <p>File <code>index.html</code> này được tự động cập nhật bởi GitHub Actions (chạy qua Docker step).</p>
+    <p>Chào mừng bạn đến với trang web của chúng tôi!</p>
+    <p>Hãy kiểm tra xem mọi thứ đã hoạt động đúng chưa nhé!</p>
+    <p class="time">Thời gian deploy: <span id="deploy-time"></span></p>
 
     <script>
         document.getElementById('deploy-time').innerText = new Date().toLocaleString('vi-VN');
